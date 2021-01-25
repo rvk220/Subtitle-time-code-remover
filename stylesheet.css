@@ -1,0 +1,48 @@
+html {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    text-align: center;
+}
+
+h1, p {
+    margin-top:0vh;
+    margin-bottom: 0.2vh;
+    padding:0vh;
+}
+
+body {
+    background-color: antiquewhite;
+    font-size:3vh;
+}
+
+textarea{
+    width: 90vw;
+    height: 50vh;
+}
+
+button{
+    width:50vh;
+    font-size:100%;
+    margin-bottom: 0.5vh;
+}
+
+label{
+    font-size: 80%;
+}
+
+.centeredContent{
+    overflow:auto;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#checkBoxDiv {
+    text-align:left;
+}
+
+body > p > strong > span {
+    color:blue;
+    text-decoration: underline;
+}
