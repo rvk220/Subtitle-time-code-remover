@@ -144,3 +144,8 @@ function processAndDownloadFile() {
         showResult('The input is empty, so nothing was done.', false);
     }
 }
+
+function closeOrOpenSettings() {
+    qs('#checkBoxDiv').classList.toggle('hidden');
+    qs('#closeSettings').classList.toggle('hidden');
+}
