@@ -10,20 +10,21 @@
 <body onload="applySavedConfig()">
     <h1>Subtitle time code remover</h1>
     <p><strong>Paste your subtitle text into the text area below<br>
-        or <span onclick="qs('#fileInput').click()">click here to upload a .srt or .txt file with subtitles</span></strong></p>
+        or <span onclick="qs('#fileInput').click()">click here</span> to upload a .srt or .txt file with subtitles</strong></p>
     <div class="centeredContent">
         <div id="checkBoxDiv">
             <input type="checkbox" id="checkboxTimeCodes" onclick="updateCheckboxConfig()" checked><label>Remove time codes and extra line brearks</label><br>
-            <input type="checkbox" id="checkboxOtherLineBreaks" onclick="updateCheckboxConfig()" checked><label>Remove other extra line brearks</label><br>
-            <input type="checkbox" id="checkboxMultipleSpaces" onclick="updateCheckboxConfig()" checked><label>Replace multiple spaces by a single space</label><br>
-            <input type="checkbox" id="checkboxUnderscores" onclick="updateCheckboxConfig()" checked><label>Replace underscores by spaces</label>
+            <input type="checkbox" id="checkboxOtherLineBreaks" onclick="updateCheckboxConfig()"><label>Remove other extra line brearks</label><br>
+            <input type="checkbox" id="checkboxMultipleSpaces" onclick="updateCheckboxConfig()"><label>Replace multiple spaces by a single space</label><br>
+            <input type="checkbox" id="skipFileCheck" onclick="updateCheckboxConfig()"><label>Skip extension and size check of uploaded files (not recommended)</label><br>
+            <input type="checkbox" id="addHeader" onclick="updateCheckboxConfig()" checked><label>Add an uploaded file's name as a text header</label><br>
         </div>
     </div>
-    <textarea id="textarea1" placeholder="your subtitle text..."></textarea><br>
+    <textarea id="textarea1" onpaste="setFileNameOnPaste()" ondrop="dropFile(event)" placeholder="Please DRAG-AND-DROP a .srt or .txt file or PASTE a subtitle text here."></textarea><br>
     <div id="resultContainer"></div>
     <input type="file" onchange="onFileInputChange(this)" id="fileInput" accept=".srt,.txt" style="display:none;">
-    <button onclick="processOnly()";>Process</button><br>
     <button onclick="processAndCopyToClipboard()";>Process and copy to clipboard</button><br>
-    <button onclick="processAndDownloadFile()";>Process and download the result</button>
+    <button onclick="processAndDownloadFile()";>Process and download the result</button><br>
+    <button onclick="processOnly()";>Process only</button>
 </body>
 </html>
