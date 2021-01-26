@@ -16,9 +16,14 @@ body {
     font-size:3vh;
 }
 
-textarea{
-    width: 90vw;
-    height: 50vh;
+textarea {
+    width:70vw;
+    height: 45vh;
+}
+
+textarea::placeholder {
+    font-size: 150%;
+    text-align: center;
 }
 
 button{
