@@ -4,8 +4,11 @@ var fileName = 'ex_subtitles_' + Date.now();
 const setFileNameOnPaste = () => fileName = 'ex_subtitles_' + Date.now() + '.txt';
 
 const showResult = (message, success=true) => {
-    qs('#resultContainer').innerHTML = `<p style="color:${success ? 'green' : 'red'}">${message}</p>`;
-    setTimeout(() => qs('#resultContainer').innerHTML = '', 5000);
+    const p = document.createElement('p');
+    p.style.color = success ? 'green' : 'red';
+    p.innerHTML = message;
+    qs('#resultContainer').appendChild(p);
+    setTimeout(() => qs('#resultContainer').removeChild(p), 5000);
 }
 
 const processReplacement = () => {
@@ -17,7 +20,6 @@ const processReplacement = () => {
     }
     if(qs('#checkboxOtherLineBreaks').checked && qs('#textarea1').value.match(/\n+/)) {
         qs('#textarea1').value = qs('#textarea1').value.replace(/\n+/g, '\n');
-        // /\n+|(\n(\s+)\n)/g
         if(!changesMade) {changesMade = true;}
     }
     if(qs('#checkboxMultipleSpaces').checked && qs('#textarea1').value.match(/\ \ /)) {
@@ -86,42 +88,57 @@ function applySavedConfig() {
     }
 }
 
-function processFile(file, utf8=true) {
-    //console.log(file.size, file.name, file.name.match(/\.(srt|txt)$/))
-    if (qs('#skipFileCheck').checked || (file.name.match(/\.(srt|txt)$/) && file.size < 10485760)) {
-        const reader = new FileReader();
-        reader.readAsText(file, utf8 ? 'UTF-8' : 'CP1251');
-        reader.onload = () => {
-            let result = reader.result;
-            if (utf8 && result.match(/�/)) {
-                processFile(file, false);
-                console.log('The file encoding is not utf-8! Trying CP1251...');
-            } else {
-                const fileNameTemp = file.name.replace(/\.(srt|txt)$/, '');
-                const header = qs('#addHeader').checked ? fileNameTemp.replace(/_+/g, '\ ').toUpperCase() + '\n' : '';
-                qs('#textarea1').value = header + result;
-                fileName = fileNameTemp + '_ex_subtitles' + '.txt';
+function readUploadedFile(file, utf8=true) {
+    return new Promise((res, rej) => {
+        if (qs('#skipFileCheck').checked || (file.name.match(/\.(srt|txt)$/) && file.size < 10485760)) {
+            const reader = new FileReader();
+            reader.readAsText(file, utf8 ? 'UTF-8' : 'CP1251');
+            reader.onload = () => {
+                let result = reader.result;
+                if (utf8 && result.match(/�/)) {
+                    res(readUploadedFile(file, false));
+                    console.log(file.name + ': the file encoding is not utf-8! Trying CP1251...');
+                } else {
+                    const fileNameTemp = file.name.replace(/\.(srt|txt)$/, '');
+                    const header = qs('#addHeader').checked ? fileNameTemp.replace(/_+/g, '\ ').toUpperCase() + '\n' : '';
+                    qs('#textarea1').value = header + result;
+                    fileName = fileNameTemp + '_ex_subtitles' + '.txt';
+                    console.log('The file ' + file.name + ' was read successfully.');
+                    res();
+                }
             }
+            reader.onerror = event => {
+                console.error(reader.error);
+                showResult(reader.error, false);
+                rej();
+                reader.abort();
+            };
+        } else {
+            console.warn(file.name + ' was not processed: the file extension is not .srt or .txt, or the file is too big.');
+            showResult('Error: the file extension is not .srt or .txt, or the file is too big.', false);
+            rej();
         }
-    } else {
-        showResult('Error: the file extension is not .srt or .txt, or the file is too big.', false);
-    }
+    });
 }
 
 function onFileInputChange(inputDomElement) {
-    file = inputDomElement.files[0];
-    if(file) {
-        processFile(file);
-    }    
+    const files = inputDomElement.files;
+    if(files.length === 1) {
+        readUploadedFile(files[0]).catch(() => {});
+    } else if(files.length > 1) {
+        processAndDownloadMultipleFiles(files);
+    }
 }
 
 function dropFile(event) {
     event.preventDefault();
     const dt = event.dataTransfer;
-    if(!dt || !dt.files || dt.files.length !== 1) {
-        showResult('Error: you can drag-and-drop only one .srt or .txt valid file.', false);
+    if(!dt || !dt.files || !dt.files.length) {
+        showResult('Error: you can drag-and-drop only .srt or .txt valid files.', false);
+    } else if(dt.files.length > 1) {
+        processAndDownloadMultipleFiles(dt.files);
     } else {
-        processFile(dt.files[0]);
+        readUploadedFile(dt.files[0]).catch(() => {});
     }
 }
 
@@ -148,4 +165,21 @@ function processAndDownloadFile() {
 function closeOrOpenSettings() {
     qs('#checkBoxDiv').classList.toggle('hidden');
     qs('#closeSettings').classList.toggle('hidden');
+}
+
+function processAndDownloadMultipleFiles(files) {
+    if (confirm('Are you sure to upload multiple files? In this case, they will be processed and resulting files will be transfered to download. Take notice that your browser may ask your permission to download multiple files, and in this case the action will be possible only if you confirm.')) {
+        let temp = new Promise(res => { res() });
+        for (let i = 0; i < files.length; i++) {
+            temp = temp.then(() => {
+                return readUploadedFile(files[i]).then(() => {
+                    processAndDownloadFile();
+                    if (i === files.length - 1) {
+                        console.log('The operation with multiple files was successfully completed.')
+                        qs('#textarea1').value = '';
+                    }
+                }).catch(() => { });
+            })
+        }
+    }
 }
