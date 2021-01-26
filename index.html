@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subtitle Timecode Remover by rvk220</title>
+    <title>Document</title>
     <script src="script.js"></script>
     <link rel="stylesheet" href="stylesheet.css">
 </head>
@@ -24,7 +24,7 @@
     </div>
     <textarea id="textarea1" onpaste="setFileNameOnPaste()" ondrop="dropFile(event)" placeholder="Please DRAG-AND-DROP a .srt or .txt file or PASTE a subtitle text here."></textarea><br>
     <div id="resultContainer"></div>
-    <input type="file" onchange="onFileInputChange(this)" id="fileInput" accept=".srt,.txt" style="display:none;">
+    <input type="file" multiple onchange="onFileInputChange(this)" id="fileInput" accept=".srt,.txt" style="display:none;">
     <button onclick="processAndCopyToClipboard()";>Process and copy to clipboard</button><br>
     <button onclick="processAndDownloadFile()";>Process and download the result</button><br>
     <button onclick="processOnly()";>Process only</button>
