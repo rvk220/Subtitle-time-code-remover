@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Subtitle Timecode Remover by rvk220</title>
     <script src="script.js"></script>
     <link rel="stylesheet" href="stylesheet.css">
 </head>
@@ -11,13 +11,15 @@
     <h1>Subtitle time code remover</h1>
     <p><strong>Paste your subtitle text into the text area below<br>
         or <span onclick="qs('#fileInput').click()">click here</span> to upload a .srt or .txt file with subtitles</strong></p>
-    <div class="centeredContent">
-        <div id="checkBoxDiv">
+    <p class='blueUnderlined' id="closeSettings" onclick="closeOrOpenSettings()">Open additional settings</p>
+    <div class="centeredContent hidden" id="checkBoxDiv">
+        <div>
             <input type="checkbox" id="checkboxTimeCodes" onclick="updateCheckboxConfig()" checked><label>Remove time codes and extra line brearks</label><br>
             <input type="checkbox" id="checkboxOtherLineBreaks" onclick="updateCheckboxConfig()"><label>Remove other extra line brearks</label><br>
             <input type="checkbox" id="checkboxMultipleSpaces" onclick="updateCheckboxConfig()"><label>Replace multiple spaces by a single space</label><br>
             <input type="checkbox" id="skipFileCheck" onclick="updateCheckboxConfig()"><label>Skip extension and size check of uploaded files (not recommended)</label><br>
             <input type="checkbox" id="addHeader" onclick="updateCheckboxConfig()" checked><label>Add an uploaded file's name as a text header</label><br>
+            <div class="centeredContent"><p class='blueUnderlined' onclick="closeOrOpenSettings()">Close settings</p></div>
         </div>
     </div>
     <textarea id="textarea1" onpaste="setFileNameOnPaste()" ondrop="dropFile(event)" placeholder="Please DRAG-AND-DROP a .srt or .txt file or PASTE a subtitle text here."></textarea><br>
