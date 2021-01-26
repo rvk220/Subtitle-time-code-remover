@@ -52,6 +52,11 @@ body > p > strong > span, .blueUnderlined {
     text-decoration: underline;
 }
 
+.redUnderlined {
+    color:red;
+    text-decoration: underline;
+}
+
 .hidden {
     display:none;
 }
