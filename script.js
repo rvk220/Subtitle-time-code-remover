@@ -1,7 +1,6 @@
 const qs = path => document.querySelector(path);
 
 var fileName = 'ex_subtitles_' + Date.now();
-const setFileNameOnPaste = () => fileName = 'ex_subtitles_' + Date.now() + '.txt';
 
 const showResult = (message, success=true) => {
     const p = document.createElement('p');
@@ -9,6 +8,13 @@ const showResult = (message, success=true) => {
     p.innerHTML = message;
     qs('#resultContainer').appendChild(p);
     setTimeout(() => qs('#resultContainer').removeChild(p), 5000);
+}
+
+const getAutoMode = () => {
+    const elements = document.getElementsByName('autoMode');
+    for(const el of elements) {
+        if(el.checked) { return el.value }
+    }
 }
 
 const processReplacement = () => {
@@ -66,25 +72,56 @@ function processAndCopyToClipboard() {
     }
 }
 
-function updateCheckboxConfig() {
+const setDisplayOfBottomButtons = autoMode => {
+    qs('#bottomButtons').classList.toggle('hidden', !!autoMode);
+}
+
+function updateCheckboxConfig(reviseAutoMode = false) {
+    const autoMode = getAutoMode();
+    if(reviseAutoMode) { setDisplayOfBottomButtons(autoMode); }
     localStorage.setItem('srtCheckboxConfig', JSON.stringify({
         checkboxTimeCodes: qs('#checkboxTimeCodes').checked,
         checkboxOtherLineBreaks: qs('#checkboxOtherLineBreaks').checked,
         checkboxMultipleSpaces: qs('#checkboxMultipleSpaces').checked,
         skipFileCheck: qs('#skipFileCheck').checked,
-        addHeader: qs('#addHeader').checked
+        addHeader: qs('#addHeader').checked,
+        autoMode: autoMode
     }));    
 }
 
 function applySavedConfig() {
     const checkboxConfig = localStorage.getItem('srtCheckboxConfig');
     if(checkboxConfig) {
-        const {checkboxTimeCodes, checkboxOtherLineBreaks, checkboxMultipleSpaces, skipFileCheck, addHeader} = JSON.parse(checkboxConfig);
+        const {checkboxTimeCodes, checkboxOtherLineBreaks, checkboxMultipleSpaces,
+            autoMode, skipFileCheck, addHeader} = JSON.parse(checkboxConfig);
         qs('#checkboxTimeCodes').checked = checkboxTimeCodes;
         qs('#checkboxOtherLineBreaks').checked = checkboxOtherLineBreaks;
         qs('#checkboxMultipleSpaces').checked = checkboxMultipleSpaces;
-        qs('#skipFileCheck').checked = skipFileCheck
-        qs('#addHeader').checked = addHeader
+        qs('#skipFileCheck').checked = skipFileCheck;
+        qs('#addHeader').checked = addHeader;
+
+        const elements = document.getElementsByName('autoMode');
+        for(const el of elements) {
+            if(el.value === autoMode) { el.checked = true; }
+        }
+        setDisplayOfBottomButtons(autoMode);
+    }
+}
+
+function restoreDefaultSettings() {
+    if(confirm('Are you sure you want to restore the default settings?')) {
+        localStorage.removeItem('srtCheckboxConfig');
+        window.location.reload();
+    }
+}
+
+const onPaste = () => {
+    fileName = 'ex_subtitles_' + Date.now() + '.txt';
+    const autoMode = getAutoMode();
+    if (autoMode) {
+        setTimeout(() => {
+            autoMode === '2' ? processAndDownloadFile() : processAndCopyToClipboard();
+        }, 10);
     }
 }
 
@@ -121,10 +158,19 @@ function readUploadedFile(file, utf8=true) {
     });
 }
 
+const readSingleUploadedFileAndDoAutoAction = file => {
+    readUploadedFile(file).then(() => {
+        const autoMode = getAutoMode();
+        if(autoMode) {
+            autoMode==='2' ? processAndDownloadFile() : processAndCopyToClipboard();
+        }
+    })
+}
+
 function onFileInputChange(inputDomElement) {
     const files = inputDomElement.files;
     if(files.length === 1) {
-        readUploadedFile(files[0]).catch(() => {});
+        readSingleUploadedFileAndDoAutoAction(files[0]);
     } else if(files.length > 1) {
         processAndDownloadMultipleFiles(files);
     }
@@ -138,7 +184,7 @@ function dropFile(event) {
     } else if(dt.files.length > 1) {
         processAndDownloadMultipleFiles(dt.files);
     } else {
-        readUploadedFile(dt.files[0]).catch(() => {});
+        readSingleUploadedFileAndDoAutoAction(dt.files[0]);
     }
 }
 
