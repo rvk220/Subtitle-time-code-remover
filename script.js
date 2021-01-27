@@ -130,8 +130,8 @@ function readUploadedFile(file, utf8=true) {
         if (qs('#skipFileCheck').checked || (file.name.match(/\.(srt|txt)$/) && file.size < 10485760)) {
             const reader = new FileReader();
             reader.readAsText(file, utf8 ? 'UTF-8' : 'CP1251');
-            reader.onload = () => {
-                let result = reader.result;
+            reader.onloadend = e => {
+                let result = e.target.result;
                 if (utf8 && result.match(/�/)) {
                     res(readUploadedFile(file, false));
                     console.log(file.name + ': the file encoding is not utf-8! Trying CP1251...');
@@ -164,7 +164,7 @@ const readSingleUploadedFileAndDoAutoAction = file => {
         if(autoMode) {
             autoMode==='2' ? processAndDownloadFile() : processAndCopyToClipboard();
         }
-    })
+    }).catch(() => {});
 }
 
 function onFileInputChange(inputDomElement) {
@@ -186,6 +186,7 @@ function dropFile(event) {
     } else {
         readSingleUploadedFileAndDoAutoAction(dt.files[0]);
     }
+    dragEffect(false);
 }
 
 function processAndDownloadFile() {
@@ -225,7 +226,12 @@ function processAndDownloadMultipleFiles(files) {
                         qs('#textarea1').value = '';
                     }
                 }).catch(() => { });
-            })
+            });
         }
     }
+}
+
+function dragEffect(change = true) {
+    console.log(change)
+    qs('#textarea1').style.backgroundColor = change ? 'coral' : '';
 }
