@@ -232,6 +232,5 @@ function processAndDownloadMultipleFiles(files) {
 }
 
 function dragEffect(change = true) {
-    console.log(change)
     qs('#textarea1').style.backgroundColor = change ? 'coral' : '';
 }
