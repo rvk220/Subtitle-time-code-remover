@@ -7,13 +7,13 @@ const showResult = (message, success=true) => {
     p.style.color = success ? 'green' : 'red';
     p.innerHTML = message;
     qs('#resultContainer').appendChild(p);
-    setTimeout(() => qs('#resultContainer').removeChild(p), 5000);
+    setTimeout(() => qs('#resultContainer').removeChild(p), 10000);
 }
 
 const getAutoMode = () => {
     const elements = document.getElementsByName('autoMode');
-    for(const el of elements) {
-        if(el.checked) { return el.value }
+    for(const { checked, value } of elements) {
+        if(checked) { return value; }
     }
 }
 
@@ -151,8 +151,9 @@ function readUploadedFile(file, utf8=true) {
                 reader.abort();
             };
         } else {
-            console.warn(file.name + ' was not processed: the file extension is not .srt or .txt, or the file is too big.');
-            showResult('Error: the file extension is not .srt or .txt, or the file is too big.', false);
+            const warning = `The file ${file.name} was not processed: the extension is not .srt or .txt and/or the file is too big.`;
+            console.warn(warning);
+            showResult(warning, false);
             rej();
         }
     });
@@ -216,16 +217,21 @@ function closeOrOpenSettings() {
 
 function processAndDownloadMultipleFiles(files) {
     if (confirm('Are you sure to upload multiple files? In this case, they will be processed and resulting files will be transfered to download. Take notice that your browser may ask your permission to download multiple files, and in this case the action will be possible only if you confirm.')) {
+        const checkIfLast = index => {
+            if (index === files.length - 1) {
+                const text = 'The operation with multiple files was completed.';
+                console.log(text);
+                showResult(`<strong>${text}</strong>`);
+                qs('#textarea1').value = '';
+            }
+        }
         let temp = new Promise(res => { res() });
-        for (let i = 0; i < files.length; i++) {
+        for (const[index, file] of Object.entries(files)) {
             temp = temp.then(() => {
-                return readUploadedFile(files[i]).then(() => {
+                return readUploadedFile(file).then(() => {
                     processAndDownloadFile();
-                    if (i === files.length - 1) {
-                        console.log('The operation with multiple files was successfully completed.')
-                        qs('#textarea1').value = '';
-                    }
-                }).catch(() => { });
+                    checkIfLast(+index);
+                }).catch(() => checkIfLast(+index));
             });
         }
     }
