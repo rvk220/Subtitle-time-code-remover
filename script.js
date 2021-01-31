@@ -226,12 +226,12 @@ function processAndDownloadMultipleFiles(files) {
             }
         }
         let temp = new Promise(res => { res() });
-        for (const[index, file] of Object.entries(files)) {
+        for (const[index, file] of [].entries.call(files)) {
             temp = temp.then(() => {
                 return readUploadedFile(file).then(() => {
                     processAndDownloadFile();
-                    checkIfLast(+index);
-                }).catch(() => checkIfLast(+index));
+                    checkIfLast(index);
+                }).catch(() => checkIfLast(index));
             });
         }
     }
