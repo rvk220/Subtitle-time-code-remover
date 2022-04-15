@@ -12,7 +12,7 @@ h1, p {
 }
 
 body {
-    background-color: antiquewhite;
+    background-color: #eee;
     font-size:3vh;
 }
 
@@ -30,6 +30,7 @@ button{
     width:50vh;
     font-size:100%;
     margin-bottom: 0.5vh;
+    cursor: pointer;
 }
 
 label{
@@ -49,12 +50,18 @@ label{
 
 body > p > strong > span, .blueUnderlined {
     color:blue;
+    cursor: pointer;
     text-decoration: underline;
 }
 
 .redUnderlined {
     color:red;
+    cursor: pointer;
     text-decoration: underline;
+}
+
+input[type="radio"], input[type="checkbox"] {
+    cursor: pointer;
 }
 
 .hidden {

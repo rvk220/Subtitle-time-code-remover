@@ -238,5 +238,5 @@ function processAndDownloadMultipleFiles(files) {
 }
 
 function dragEffect(change = true) {
-    qs('#textarea1').style.backgroundColor = change ? 'coral' : '';
+    qs('#textarea1').style.backgroundColor = change ? '#ccc' : '';
 }
